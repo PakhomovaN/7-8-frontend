@@ -24,7 +24,6 @@ contentEl.addEventListener('input', (evt) => {
     localStorage.setItem('content', evt.currentTarget.value);
 });
 
-
 const typeEl = addFormEl.querySelector('[data-id=type]');
 typeEl.value = localStorage.getItem('type');
 typeEl.addEventListener('input', (evt) => {
@@ -37,11 +36,11 @@ addFormEl.addEventListener('submit', (evt) => {
         content: contentEl.value,
         type: typeEl.value,
     };
-    Http.postRequest('/posts', (evt) => {
+    http.postRequest('/posts', (evt) => {
         loadData();
         contentEl.value = '';
         localStorage.removeItem('link');
-    }, handleError, JSON.stringify(data), [{name: 'Content-Type', value: 'application/json'}]);
+    }, handleError, JSON.stringify(data), [{ name: 'Content-Type', value: 'application/json' }]);
 });
 
 const listEl = document.createElement('div');
@@ -50,63 +49,80 @@ rootEl.appendChild(listEl);
 
 
 const rebuildList = (evt) => {
-    const data = JSON.parse(evt.currentTarget.responseText);
+    const items = JSON.parse(evt.currentTarget.responseText);
     listEl.innerHTML = '';
 
-    data.sort((a, b) => {
+    items.sort((a, b) => {
         return a.likes - b.likes;
     });
 
-        for (const item of items) {
-            const postEl = document.createElement('div');
-            postEl.className = 'card mb-2';
-            if (item.type === 'regular') {
-                postEl.innerHTML = `
+    for (const item of items) {
+        const postEl = document.createElement('div');
+        postEl.className = 'card mb-2';
+        if (item.type === 'regular') {
+            postEl.innerHTML = `
                     <div class="card-body">
-                        <div class="card-text">${item.value}</div>
+                        <div class="card-text">${item.content}</div>
                         <button class="btn">♡ ${item.likes}</button>
                         <button class="btn btn-primary" data-action="like">like</button>
                         <button class="btn btn-danger" data-action="dislike">dislike</button>
+                        <button class="btn btn-danger" data-action="remove">x</button>
                     </div>
                 `;
-            } else if (item.type === 'image') {
-                postEl.innerHTML = `
-                    <img src="${item.value}" class="card-img-top">
-                    <div class="card-body">
-                        <button class="btn">♡ ${item.likes}</button>
-                        <button class="btn btn-primary" data-action="like">like</button>
-                        <button class="btn btn-danger" data-action="dislike">dislike</button>
-                    </div>
-                `;
-            } else if (item.type === 'audio') {
-                postEl.innerHTML = `
-                    <audio src="${item.value}" class="card-audio-top">
+        } else if (item.type === 'image') {
+            postEl.innerHTML = `
+                    <img src="${item.content}" class="card-img-top">
                     <div class="card-body">
                         <button class="btn">♡ ${item.likes}</button>
                         <button class="btn btn-primary" data-action="like">like</button>
                         <button class="btn btn-danger" data-action="dislike">dislike</button>
+                        <button class="btn btn-danger" data-action="remove">x</button>
                     </div>
                 `;
-            } else if (item.type === 'video') {
-                postEl.innerHTML = `
-                    <video src="${item.value}" class="card-video-top">
+        } else if (item.type === 'audio') {
+            postEl.innerHTML = `
+                    <audio src="${item.content}" class="card-audio-top">
                     <div class="card-body">
                         <button class="btn">♡ ${item.likes}</button>
                         <button class="btn btn-primary" data-action="like">like</button>
                         <button class="btn btn-danger" data-action="dislike">dislike</button>
+                        <button class="btn btn-danger" data-action="remove">x</button>
                     </div>
                 `;
-            }
-        };
-
-        for (const item of data) {
-            const el = document.createElement('div');
-            el.innerHTML = `${item.id} ${item.content} <button data-action="remove">x</button>`;
-            el.querySelector('[data-action=remove]').addEventListener('click', () => {
-                http.deleteRequest(`/posts/${item.id}`, loadData, handleError);
-            });
-            listEl.appendChild(el);
+        } else if (item.type === 'video') {
+            postEl.innerHTML = `
+                    <video src="${item.content}" class="card-video-top">
+                    <div class="card-body">
+                        <button class="btn">♡ ${item.likes}</button>
+                        <button class="btn btn-primary" data-action="like">like</button>
+                        <button class="btn btn-danger" data-action="dislike">dislike</button>
+                        <button class="btn btn-danger" data-action="remove">x</button>
+                    </div>
+                `;
+        } else {
+            // Показываем обычный -> TODO: вам нужно добавить type в посты на сервере
+            postEl.innerHTML = `
+                    <div class="card-body">
+                        <div class="card-text">${item.content}</div>
+                        <button class="btn">♡ ${item.likes}</button>
+                        <button class="btn btn-primary" data-action="like">like</button>
+                        <button class="btn btn-danger" data-action="dislike">dislike</button>
+                        <button class="btn btn-danger" data-action="remove">x</button>
+                    </div>
+                `;
         }
+
+        postEl.querySelector('[data-action=like]').addEventListener('click', () => {
+            // TODO: like item
+        });
+        postEl.querySelector('[data-action=dislike]').addEventListener('click', () => {
+            // TODO: dislike item
+        });
+        postEl.querySelector('[data-action=remove]').addEventListener('click', () => {
+            http.deleteRequest(`/posts/${item.id}`, loadData, handleError);
+        });
+        listEl.appendChild(postEl);
+    };
 };
 const handleError = (evt) => {
     console.log(evt);
