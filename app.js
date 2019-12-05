@@ -112,10 +112,10 @@ const rebuildList = (evt) => {
                 `;
             
         postEl.querySelector('[data-action=like]').addEventListener('click', () => {
-            // TODO: like item
+            http.postRequest(`/posts/${item.id}/likes`, loadData, handleError);
         });
         postEl.querySelector('[data-action=dislike]').addEventListener('click', () => {
-            // TODO: dislike item
+            http.deleteRequest(`/posts/${item.id}/likes`, loadData, handleError);
         });
         postEl.querySelector('[data-action=remove]').addEventListener('click', () => {
             http.deleteRequest(`/posts/${item.id}`, loadData, handleError);
