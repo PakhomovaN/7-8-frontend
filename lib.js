@@ -18,7 +18,7 @@ export default class Http {
         xhr.send();
     }
     postRequest(url, onSuccess, onError, body, headers) {
-        const xhr = new XHMLHttpRequest();
+        const xhr = new XMLHttpRequest();
         xhr.open('POST', `${this.baseUrl}${url}`);
         for (const header of headers) {
             xhr.serRequestHeader(header.name, header.value);
